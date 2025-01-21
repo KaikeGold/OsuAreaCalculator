@@ -3,10 +3,10 @@ This script calculates your Osu! area by converting your monitor's current resol
 
 This project tracks and visualizes cursor movements on a graphics tablet. It allows users to measure the areas they interact with, providing detailed dimensions and center points.
 
+  
+  
 
-
-
-
+  
 
 1- Put it in bordeless mode by disabling Fullscreen Mode
 
