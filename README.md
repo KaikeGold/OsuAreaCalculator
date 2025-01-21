@@ -5,7 +5,8 @@ This project tracks and visualizes cursor movements on a graphics tablet. It all
 
 
 
-Just open osu!
+
+
 
 1- Put it in bordeless mode by disabling Fullscreen Mode
 
