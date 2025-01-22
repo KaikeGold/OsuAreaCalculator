@@ -2,8 +2,8 @@
 If you're unfamiliar with GitHub, here’s a direct download link:  
 [OsuAreaCalculator.exe](https://github.com/KaikeGold/OsuAreaCalculator/releases/download/OsuAreaCalculator/OsuAreaCalculator.exe)
 
-**AutoHotkey v1.1.x**: This is required to hide and show your cursor.
-Download it here: [AutoHotkey v1.1.x](https://www.autohotkey.com/download/ahk-install.exe)
+AutoHotkey v1.1.x is required to hide and show your cursor.
+[Download it here](https://www.autohotkey.com/download/ahk-install.exe)
 
 This tool calculates your Osu! area by converting your monitor's current resolution into your tablet's active field in millimeters. Tracking and visualizes cursor movements on a graphics tablet, measuring the area you aim at, providing dimensions and positions.
 
