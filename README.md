@@ -21,3 +21,5 @@ This project tracks and visualizes cursor movements on a graphics tablet. It all
 4- Press F6 to see the results, you can drag locations to see it respective areas.
 
 ![python_eOnyLRh8QB](https://github.com/user-attachments/assets/753aa001-0cd3-4bab-9749-d2867dd7ab33)
+
+Yes, the app icon is OTD icon with Osu! logo cuz im so lazy to do something original KEKW.
