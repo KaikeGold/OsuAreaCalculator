@@ -1,6 +1,7 @@
 # OsuAreaCalculator
 If you're unfamiliar with GitHub, here’s a direct download link:  
 [OsuAreaCalculator.exe](https://github.com/KaikeGold/OsuAreaCalculator/releases/download/OsuAreaCalculator/OsuAreaCalculator.exe)
+
 **AutoHotkey v1.1.x**: This is required to hide and show your cursor.
 Download it here: [AutoHotkey v1.1.x](https://www.autohotkey.com/download/ahk-install.exe)
 
