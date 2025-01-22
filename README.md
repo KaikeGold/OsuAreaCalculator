@@ -17,5 +17,7 @@ This project tracks and visualizes cursor movements on a graphics tablet. It all
 ![image](https://github.com/user-attachments/assets/14690e24-3af9-44c8-85cd-8340f2893dd9)
 
 3- Open a replay. Press F5 and start aiming the notes pretending you are playing.
+
 4- Press F6 to see the results, you can drag locations to see it respective areas.
 
+![python_eOnyLRh8QB](https://github.com/user-attachments/assets/753aa001-0cd3-4bab-9749-d2867dd7ab33)
