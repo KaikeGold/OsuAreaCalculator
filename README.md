@@ -1,5 +1,6 @@
 # OsuAreaCalculator
 Here a direct download link if you dont know how to use github xD: https://github.com/KaikeGold/OsuAreaCalculator/releases/download/OsuAreaCalculator/OsuAreaCalculator.exe
+
 This script calculates your Osu! area by converting your monitor's current resolution to your tablet's active field in millimeters. 
 
 This project tracks and visualizes cursor movements on a graphics tablet. It allows users to measure the areas they interact with, providing detailed dimensions and center points.
