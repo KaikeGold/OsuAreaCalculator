@@ -3,7 +3,7 @@ This script calculates your Osu! area by converting your monitor's current resol
 
 This project tracks and visualizes cursor movements on a graphics tablet. It allows users to measure the areas they interact with, providing detailed dimensions and center points.
 
- You need to have AutoHotkey v1.1.x to use it, you can find it here: https://www.autohotkey.com/download/ahk-install.exe 
+ You need to have AutoHotkey v1.1.x to use it, since its needed to hide and show your cursor, you can find it here: https://www.autohotkey.com/download/ahk-install.exe 
   
 
   
