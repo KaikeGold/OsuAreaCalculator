@@ -28,6 +28,7 @@ TABLET_HEIGHT_MM = 0
 HIDE_CURSOR_SCRIPT = '''
 #NoEnv
 #Persistent
+#SingleInstance Force
 SetWorkingDir %A_ScriptDir%
 
 if not A_IsAdmin
@@ -54,6 +55,7 @@ ExitApp
 SHOW_CURSOR_SCRIPT = '''
 #NoEnv
 #Persistent
+#SingleInstance Force
 SetWorkingDir %A_ScriptDir%
 
 DllCall("SystemParametersInfo", "UInt", 0x57, "UInt", 0, "Ptr", 0, "UInt", 0)
