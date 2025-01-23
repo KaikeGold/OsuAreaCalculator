@@ -7,7 +7,7 @@ AutoHotkey v1.1.x is required to hide and show your cursor.
 This tool calculates your Osu! area by converting your monitor's current resolution into your tablet's active field in millimeters. Tracking and visualizes cursor movements on a graphics tablet, measuring the area you aim at, providing dimensions and positions. This was inspired in the oldschool "draw in a paper while see a replay" method, but i modernized it(i dont know how no one did that before LOL)
 
 
-  
+**This application is meant to be executed as administrator.**
 
   
 
