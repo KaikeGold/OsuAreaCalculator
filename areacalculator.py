@@ -186,6 +186,7 @@ def plot_cursor_positions(positions_x, positions_y, measurements):
     
     plt.xlim(min(positions_x) - 5, max(positions_x) + 50)
     plt.ylim(min(positions_y) - 5, max(positions_y) + 5)
+    ax.invert_yaxis()
     plt.text(max(positions_x) + 5, max(positions_y), 
              measurements,
              bbox=dict(
