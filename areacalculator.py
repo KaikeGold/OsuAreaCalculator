@@ -154,16 +154,18 @@ def plot_cursor_positions(positions_x, positions_y, measurements):
         x1, y1 = float(eclick.xdata), float(eclick.ydata)
         x2, y2 = float(erelease.xdata), float(erelease.ydata)
         
-        width = abs(x2 - x1) * 1.3333
+        widthad = abs(x2 - x1) * 1.66666666667
+        heightad = abs(y2 - y1) * 1.25
+        width = abs(x2 - x1)
         height = abs(y2 - y1)
         center_x = min(x1, x2) + abs(x2 - x1) / 2
-        center_y = min(y1, y2) + abs(y2 - y1) / 2
+        center_y = min(y1, y2) + abs(y2 - y1) * 31/60
         
         selection_text = (
             f"Selected Area:\n"
-            f"Width (4:3): {width:.1f}mm\n"
-            f"Height: {height:.1f}mm\n"
-            f"Center: X={center_x:.1f}mm, Y={center_y:.1f}mm"
+            f"Area: {width:.1f}x{height:.1f}mm\n"
+            f"Adjusted Area: {widthad:.1f}x{heightad:.1f}mm\n"
+            f"Center: X={center_x:.1f}mm, Y={center_y:.1f}mm\n"
         )
         
         if hasattr(ax, 'selection_text'):
@@ -226,17 +228,19 @@ def track_cursor_movement():
             if keyboard.is_pressed('F6'):
                 # Stop tracking when F6 is pressed
                 tracking = False
-                width = (max_mm_x - min_mm_x) * 1.3333
-                height = max_mm_y - min_mm_y
+                width = (max_mm_x - min_mm_x)
+                height= (max_mm_y - min_mm_y)
+                widthad = (max_mm_x - min_mm_x) * 1.66666666667
+                heightad = (max_mm_y - min_mm_y) * 1.25
                 center_x = min_mm_x + (max_mm_x - min_mm_x) / 2
-                center_y = min_mm_y + (max_mm_y - min_mm_y) / 2
+                center_y = min_mm_y + (max_mm_y - min_mm_y) / 23/48
                 measurements = (
                     f"Final Measurements:\n"
-                    f"Width (4:3): {width:.1f}mm\n"
-                    f"Height: {height:.1f}mm\n"
+                    f"Area: {width:.1f}x{height:.1f}mm\n"
+                    f"Adjusted Area: {widthad:.1f}x{heightad:.1f}mm\n"
                     f"Center: X={center_x:.1f}mm, Y={center_y:.1f}mm\n"
-                    f"Min: X={min_mm_x:.1f}mm, Y={min_mm_y:.1f}mm\n"
-                    f"Max: X={max_mm_x:.1f}mm, Y={max_mm_y:.1f}mm"
+                    f"Min: X={min_mm_x:.1f}x{min_mm_y:.1f}mm\n"
+                    f"Max: X={max_mm_x:.1f}x{max_mm_y:.1f}mm"
                 )
                 # Restore the cursor visibility
                 show_cursor()
@@ -256,26 +260,7 @@ def track_cursor_movement():
                 min_mm_x = min(min_mm_x, mm_x)
                 min_mm_y = min(min_mm_y, mm_y)
 
-                width = (max_mm_x - min_mm_x) * 1.3333
-                height = max_mm_y - min_mm_y
-                center_x = min_mm_x + (max_mm_x - min_mm_x) / 2
-                center_y = min_mm_y + (max_mm_y - min_mm_y) / 2
-
-                # Print real-time tracking information
-                print(f"Screen: X={x}, Y={y} | "
-                      f"Tablet: X={mm_x:.1f}mm, Y={mm_y:.1f}mm | "
-                      f"Min: X={min_mm_x:.1f}mm, Y={min_mm_y:.1f}mm | "
-                      f"Max: X={max_mm_x:.1f}mm, Y={max_mm_y:.1f}mm | "
-                      f"Center: X={center_x:.1f}mm, Y={center_y:.1f}mm | "
-                      f"Area: {width:.1f}x{height:.1f}mm  ",
-                      end='\r')
-
                 last_x, last_y = x, y
-
-        print(f"\n\nTablet area used:")
-        print(f"Minimum coordinates: X={min_mm_x:.1f}mm, Y={min_mm_y:.1f}mm")
-        print(f"Maximum coordinates: X={max_mm_x:.1f}mm, Y={max_mm_y:.1f}mm")
-        print(f"Center coordinates: X={center_x:.1f}mm, Y={center_y:.1f}mm")
     except KeyboardInterrupt:
         print("\nTracking stopped by user")
 
