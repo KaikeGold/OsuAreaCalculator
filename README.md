@@ -25,4 +25,6 @@ This tool calculates your Osu! area by converting your monitor's current resolut
 
 ![python_eOnyLRh8QB](https://github.com/user-attachments/assets/753aa001-0cd3-4bab-9749-d2867dd7ab33)
 
+You should put the adjusted area in your settings, since its calculated for osu! playfield.
+
 Yes, the app icon is OTD icon with Osu! logo cuz im too lazy to do something original KEKW.
