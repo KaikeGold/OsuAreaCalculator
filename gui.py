@@ -7,7 +7,6 @@ import base64
 import tempfile
 import os
 import customtkinter as ctk
-import sv_ttk
 # Add icon as base64 string
 
 class TabletAreaGUI:
