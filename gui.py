@@ -1,5 +1,4 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+from CustomTkinterMessagebox import CTkMessagebox
 import areacalculator
 import keyboard
 import webbrowser
@@ -45,7 +44,7 @@ class TabletAreaGUI:
 
         # Dimensions Frame
         dim_frame = ctk.CTkFrame(container)
-        dim_frame.pack(fill=tk.X, padx=10, pady=10)
+        dim_frame.pack(fill=ctk.X, padx=10, pady=10)
         dim_frame.configure(fg_color="#333333")
 
         dim_label = ctk.CTkLabel(dim_frame, text="Tablet Dimensions", font=("Arial", 14, "bold"))
@@ -54,19 +53,19 @@ class TabletAreaGUI:
         # Grid layout for dimensions
         width_frame = ctk.CTkFrame(dim_frame)
         width_frame.configure(fg_color="#333333")
-        width_frame.pack(fill=tk.X, padx=5, pady=5)
+        width_frame.pack(fill=ctk.X, padx=5, pady=5)
         width_label = ctk.CTkLabel(width_frame, text="Width (mm): ", font=("Arial", 12, "bold"))
-        width_label.pack(side=tk.LEFT, padx=5)
+        width_label.pack(side=ctk.LEFT, padx=5)
         self.width_entry = ctk.CTkEntry(width_frame)
-        self.width_entry.pack(side=tk.LEFT)
+        self.width_entry.pack(side=ctk.LEFT)
 
         height_frame = ctk.CTkFrame(dim_frame)
         height_frame.configure(fg_color="#333333")
-        height_frame.pack(fill=tk.X, padx=5, pady=5)
+        height_frame.pack(fill=ctk.X, padx=5, pady=5)
         height_label = ctk.CTkLabel(height_frame, text="Height (mm):", font=("Arial", 12, "bold"))
-        height_label.pack(side=tk.LEFT, padx=5)
+        height_label.pack(side=ctk.LEFT, padx=5)
         self.height_entry = ctk.CTkEntry(height_frame)
-        self.height_entry.pack(side=tk.LEFT)
+        self.height_entry.pack(side=ctk.LEFT)
 
         
         # Status
@@ -83,7 +82,7 @@ class TabletAreaGUI:
         
         self.start_btn = ctk.CTkButton(btn_frame, text="Start (F5)", font=("Arial", 14, "bold"), 
                                    command=self.start_tracking,
-                                   state=tk.DISABLED, fg_color="#FF7EB8")
+                                   state=ctk.DISABLED, fg_color="#FF7EB8")
         self.start_btn.pack(side=ctk.LEFT, padx=5)
         
         # Instructions
@@ -116,7 +115,7 @@ class TabletAreaGUI:
     
     def my_credits(self, parent):
         """Display credits with clickable link"""
-        credits = ttk.Label(parent, text="Made by KeepGrindingOsu", justify=tk.LEFT, font=("Helvetica", 10, "bold"), foreground="#FF8EE6", background="#2B2B2B", cursor="hand2")
+        credits = ctk.CTkLabel(parent, text="Made by KeepGrindingOsu", justify=ctk.LEFT, font=("Helvetica", 10, "bold"), text_color="#FF8EE6", cursor="hand2")
         credits.pack(pady=1)
         credits.bind("<Button-1>", lambda e: self.open_link("https://x.com/KeepGrindingOsu"))
 
@@ -140,9 +139,9 @@ class TabletAreaGUI:
                 raise RuntimeError("Failed to set dimensions")
                 
         except ValueError as e:
-            messagebox.showerror("Error", f"Invalid dimensions: You should put numbers there xD")
+            CTkMessagebox.messagebox("Error", f"Invalid dimensions: You should put numbers there xD")
         except Exception as e:
-            messagebox.showerror("Error", f"Unexpected error: {e}")
+            CTkMessagebox.messagebox("Error", f"Unexpected error: {e}")
     
     def start_tracking(self):
         """Start tracking cursor movement"""
