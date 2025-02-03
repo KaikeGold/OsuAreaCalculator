@@ -121,11 +121,6 @@ def get_monitor_info():
         print(f"Monitor {i}: {m.width}x{m.height} at ({m.x}, {m.y})")
     return monitors
 
-def get_cursor_position():
-    """Prints the current cursor position in screen coordinates."""
-    x, y = pyautogui.position()
-    print(f"Current cursor position: ({x}, {y})")
-
 def set_tablet_dimensions(width=0, height=0):
     """Sets the tablet dimensions in millimeters."""
     try:
