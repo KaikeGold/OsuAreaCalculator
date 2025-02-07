@@ -143,14 +143,43 @@ def cursor_to_mm(x, y):
 
 def plot_cursor_positions(positions_x, positions_y, measurements):
     """Plots the cursor movement path and allows measuring selected areas."""
-    fig = plt.figure(figsize=(12, 8), facecolor='#2E2E2E')
+
+    # find figsize matching tablet proportions
+    maxwidth = 12 # inches
+    maxheight = 8
+    padding = 1
+    aspect_ratio = TABLET_HEIGHT_MM / TABLET_WIDTH_MM
+    if aspect_ratio > (maxheight - 2 * padding) / (maxwidth - 2 * padding):
+        width = (maxheight - 2 * padding) / aspect_ratio + 2 * padding
+        height = maxheight
+    else:
+        width = maxwidth
+        height = (maxwidth - 2 * padding) * aspect_ratio + 2 * padding
+
+    fig = plt.figure(figsize=(width, height), facecolor='#2E2E2E')
+    
+    ax = fig.add_subplot(111, facecolor='#1E1E1E')
+    ax.set_aspect('equal')
+    plt.xlim(0, TABLET_WIDTH_MM)
+    plt.ylim(0, TABLET_HEIGHT_MM)
+    ax.plot(positions_x, positions_y, '#FF7EB8', alpha=0.7, linewidth=1.5)
+    ax.invert_yaxis()
+
     icon_file = tempfile.NamedTemporaryFile(delete=False, suffix='.ico')
     icon_file.write(base64.b64decode(ICON))
     icon_file.close()
     fig.canvas.manager.window.wm_iconbitmap(icon_file.name)
     os.unlink(icon_file.name)
-    ax = fig.add_subplot(111, facecolor='#1E1E1E')
-    ax.plot(positions_x, positions_y, '#FF7EB8', alpha=0.7, linewidth=1.5)
+
+
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
+    plt.title('Cursor Movement Path (Click and drag to measure area)', color='white')
+    plt.xlabel('X Position (mm)', color='white')
+    plt.ylabel('Y Position (mm)', color='white')
+    plt.grid(True, color='#444444')
+    fig.canvas.manager.set_window_title('Your Area')
+
     def on_select(eclick, erelease):
         """Handles area selection on the plot and displays measurement details."""
         xc, yc = selector.corners
@@ -197,9 +226,6 @@ def plot_cursor_positions(positions_x, positions_y, measurements):
         props=dict(facecolor='#FF7EB8', edgecolor='#FF7EB8', alpha=0.5, fill=True)
     )
     
-    plt.xlim(min(positions_x) - 5, max(positions_x) + 50)
-    plt.ylim(min(positions_y) - 5, max(positions_y) + 5)
-    ax.invert_yaxis()
     ax.text(0.975, 0.96, measurements, 
             transform=ax.transAxes,
             verticalalignment='top',
@@ -213,14 +239,7 @@ def plot_cursor_positions(positions_x, positions_y, measurements):
             fontsize=10,
             family='monospace',
             color='white')
-             
-    ax.tick_params(axis='x', colors='white')
-    ax.tick_params(axis='y', colors='white')
-    plt.title('Cursor Movement Path (Click and drag to measure area)', color='white')
-    plt.xlabel('X Position (mm)', color='white')
-    plt.ylabel('Y Position (mm)', color='white')
-    plt.grid(True, color='#444444')
-    fig.canvas.manager.set_window_title('Your Area')
+    
     plt.show()
 
 def is_rectangle(corners, tolerance=1e-12):
