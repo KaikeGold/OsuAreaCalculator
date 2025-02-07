@@ -6,13 +6,15 @@ import keyboard  # Used for detecting key presses
 import subprocess  # Enables running external processes
 import psutil  # Used for system and process utilities
 import matplotlib.pyplot as plt  # For plotting cursor movement
-from matplotlib.widgets import RectangleSelector  # Allows interactive area selection in plots
 import tkinter as tk  # GUI library for creating input forms
 from tkinter import ttk  # Themed widgets for tkinter
 import tempfile  # For creating temporary files
 import os  # Provides utilities for interacting with the operating system
 import threading  # Used for running tasks in parallel
 import time  # For adding delays
+import numpy as np
+
+from widgets import ParallelogramSelector
 
 # Initialize AutoHotkey interface
 # Retrieve screen dimensions using Windows API
@@ -151,22 +153,30 @@ def plot_cursor_positions(positions_x, positions_y, measurements):
     ax.plot(positions_x, positions_y, '#FF7EB8', alpha=0.7, linewidth=1.5)
     def on_select(eclick, erelease):
         """Handles area selection on the plot and displays measurement details."""
-        x1, y1 = float(eclick.xdata), float(eclick.ydata)
-        x2, y2 = float(erelease.xdata), float(erelease.ydata)
+        xc, yc = selector.corners
+        corners = np.transpose((xc, yc))
+        vec1 = corners[1] - corners[0]
+        vec2 = corners[3] - corners[1]
         
-        widthad = abs(x2 - x1) * 1.66666666667
-        heightad = abs(y2 - y1) * 1.25
-        width = abs(x2 - x1)
-        height = abs(y2 - y1)
-        center_x = min(x1, x2) + abs(x2 - x1) / 2
-        center_y = min(y1, y2) + abs(y2 - y1) * 31/60
+        if is_rectangle((xc, yc), 1e-12):
+            playfield_width = np.linalg.norm(vec1)
+            playfield_height = np.linalg.norm(vec2)
+            screen_width = playfield_width * 5/3
+            screen_height = playfield_height * 5/4
+            center = corners[0] + 1/2 * vec1 + 25/48 * vec2
+            angle = np.arctan2(yc[1] - yc[0], xc[1] - xc[0])
         
-        selection_text = (
-            f"Selected Area:\n"
-            f"Area: {width:.1f}x{height:.1f}mm\n"
-            f"Adjusted Area: {widthad:.1f}x{heightad:.1f}mm\n"
-            f"Center: X={center_x:.1f}mm, Y={center_y:.1f}mm\n"
-        )
+            selection_text = (
+                f"Selected Area:\n"
+                f"Playfield Area: {playfield_width:.1f}x{playfield_height:.1f}mm\n"
+                f"Screen Area: {screen_width:.1f}x{screen_height:.1f}mm\n"
+                f"Center: X={center[0]:.1f}mm, Y={center[1]:.1f}mm\n"
+                f"Rotation: {angle * 180 / np.pi:.1f}°"
+            )
+        else:
+            selection_text = (
+                "Not a rectangle."
+            )
         
         if hasattr(ax, 'selection_text'):
             ax.selection_text.remove()
@@ -179,14 +189,11 @@ def plot_cursor_positions(positions_x, positions_y, measurements):
             color='white')
         plt.draw()
     
-    rect_selector = RectangleSelector(
+    selector = ParallelogramSelector(
         ax, on_select,
         useblit=True,
-        button=[1],
-        minspanx=5,
-        minspany=5,
-        spancoords='pixels',
         interactive=True,
+        drag_from_anywhere=True,
         props=dict(facecolor='#FF7EB8', edgecolor='#FF7EB8', alpha=0.5, fill=True)
     )
     
@@ -215,6 +222,30 @@ def plot_cursor_positions(positions_x, positions_y, measurements):
     plt.grid(True, color='#444444')
     fig.canvas.manager.set_window_title('Your Area')
     plt.show()
+
+def is_rectangle(corners, tolerance=1e-12):
+    """
+    Calculates whether the given array defines the corners of a rectangle
+    in either clockwise or anti-clockwise order, up to a given relative tolerance.
+    corners: array-like of shape (4, 2) or (2, 4)
+    tolerance: relative to the distance between the first two points in corners
+    """
+    if np.shape(corners) == (4, 2):
+        corners = np.array(corners)
+    elif np.shape(corners) == (2, 4):
+        corners = np.transpose(corners)
+    else:
+        raise ValueError('corners must be array-like of shape (2, 4) or (4, 2).')
+    vec1 = corners[1] - corners[0]
+    vec2 = corners[-1] - corners[0]
+    absolute_tolerance = tolerance * np.linalg.norm(vec1)
+    dotproduct_tolerance = tolerance * np.linalg.norm(vec1)**2
+
+    if not np.abs(np.dot(vec1, vec2)) <= dotproduct_tolerance:
+        return False
+    if not np.linalg.norm(corners[2] - (corners[0] + vec1 + vec2)) <= absolute_tolerance:
+        return False
+    return True
 
 def track_cursor_movement():
     """Tracks the cursor movement in real-time and calculates the tablet area used."""
