@@ -58,6 +58,9 @@ class TabletAreaGUI:
         width_label.pack(side=ctk.LEFT, padx=5)
         self.width_entry = ctk.CTkEntry(width_frame)
         self.width_entry.pack(side=ctk.LEFT)
+        def on_width_enter(event):
+            self.height_entry.focus()
+        self.width_entry.bind('<Return>', on_width_enter)
 
         height_frame = ctk.CTkFrame(dim_frame)
         height_frame.configure(fg_color="#333333")
@@ -66,8 +69,10 @@ class TabletAreaGUI:
         height_label.pack(side=ctk.LEFT, padx=5)
         self.height_entry = ctk.CTkEntry(height_frame)
         self.height_entry.pack(side=ctk.LEFT)
+        def on_height_enter(event):
+            self.set_dimensions()
+        self.height_entry.bind('<Return>', on_height_enter)
 
-        
         # Status
         self.status_label = ctk.CTkLabel(container, text="Enter your tablet dimensions and click Set.\n" "\n" "You need to provide the full dimensions of your tablet's active area.", font=("Arial", 12, "bold"))
         self.status_label.pack(pady=10, padx=10)
