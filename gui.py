@@ -58,6 +58,9 @@ class TabletAreaGUI:
         width_label.pack(side=ctk.LEFT, padx=5)
         self.width_entry = ctk.CTkEntry(width_frame)
         self.width_entry.pack(side=ctk.LEFT)
+        def on_width_enter(event):
+            self.height_entry.focus()
+        self.width_entry.bind('<Return>', on_width_enter)
 
         height_frame = ctk.CTkFrame(dim_frame)
         height_frame.configure(fg_color="#333333")
@@ -66,8 +69,10 @@ class TabletAreaGUI:
         height_label.pack(side=ctk.LEFT, padx=5)
         self.height_entry = ctk.CTkEntry(height_frame)
         self.height_entry.pack(side=ctk.LEFT)
+        def on_height_enter(event):
+            self.set_dimensions()
+        self.height_entry.bind('<Return>', on_height_enter)
 
-        
         # Status
         self.status_label = ctk.CTkLabel(container, text="Enter your tablet dimensions and click Set.\n" "\n" "You need to provide the full dimensions of your tablet's active area.", font=("Arial", 12, "bold"))
         self.status_label.pack(pady=10, padx=10)
@@ -119,6 +124,13 @@ class TabletAreaGUI:
         credits.pack(pady=1)
         credits.bind("<Button-1>", lambda e: self.open_link("https://x.com/KeepGrindingOsu"))
 
+    def display_message(self, message, width, height):
+        message_window = ctk.CTkToplevel()
+        message_window.title("Coordinate Resolution Info")
+        text = ctk.CTkTextbox(message_window, width=width, height=height, font=("Helvetica", 20), wrap='word')
+        text.pack(padx=20, pady=20)
+        text.insert('0.0', message)
+
     def open_link(self, url):
         """Open a web link in the default browser"""
         webbrowser.open_new(url)
@@ -149,7 +161,7 @@ class TabletAreaGUI:
             self.tracking = True
             self.status_label.configure(text="Tracking... Press F6 to stop")
             self.root.iconify()
-            areacalculator.track_cursor_movement()
+            areacalculator.track_cursor_movement(self)
     
     def stop_tracking(self):
         """Stop tracking and show results"""
