@@ -233,12 +233,14 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
                 f"Center: X={center[0]:.1f}mm, Y={center[1]:.1f}mm\n"
                 f"Rotation: {angle * 180 / np.pi:.1f}°"
             )
+            set_selection_text(ax, selection_text)
             textax.set_visible(False)
             infoax.set_visible(False)
         else:
             selection_text = (
                 "Enter tablet coordinate resolution to use parallelogram area."
             )
+            set_selection_text(ax, selection_text)
             textax.set_visible(True)
             infoax.set_visible(True)
         plt.draw()
@@ -266,6 +268,20 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
             color='white')
     
     plt.show()
+
+
+def set_selection_text(ax, text):
+    if hasattr(ax, 'selection_text'):
+        ax.selection_text.remove()
+    ax.selection_text = ax.text(0.025, 0.96, text,
+        transform=ax.transAxes,
+        verticalalignment='top',
+        bbox=dict(facecolor='#2E2E2E', alpha=0.9, 
+                  edgecolor='#FF7EB8', boxstyle='round,pad=1'),
+        fontsize=10,
+        family='monospace',
+        color='white')
+
 
 def is_rectangle(corners, tolerance=1e-12):
     """
