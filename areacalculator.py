@@ -188,6 +188,20 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
     textax = fig.add_axes([0.75, 0.02, 0.14 - button_width, entry_height], visible=False)
     textbox = TextBox(textax, "Tablet coordinate resolution  ", textalignment='center')
     textbox.label.set(color='white')
+    def submit_coord_resolution(res):
+        if not res.isdigit():
+            raise ValueError("res must be a positive integer")
+        res = int(res)
+        xy_formulas = parallelogram_formulas(selector.corners, res)
+        selection_text = ("put into Adryzz' Custom Filter:\n" +
+            f"X coordinate: {xy_formulas[0]}\n" +
+            f"Y coordinate: {xy_formulas[1]}")
+        set_selection_text(ax, selection_text)
+        copy_x_ax.set_visible(True)
+        copy_y_ax.set_visible(True)
+        plt.draw()
+    textbox.on_submit(submit_coord_resolution)
+
     infoax = fig.add_axes([0.9 - button_width, 0.02, button_width, entry_height], 
                           visible=False)
     infobutton = Button(infoax, '?', color='#FF7EB8')
@@ -236,6 +250,10 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
             set_selection_text(ax, selection_text)
             textax.set_visible(False)
             infoax.set_visible(False)
+        elif textbox.text.isdigit():
+            submit_coord_resolution(textbox.text)
+            textax.set_visible(True)
+            infoax.set_visible(True)
         else:
             selection_text = (
                 "Enter tablet coordinate resolution to use parallelogram area."
@@ -281,6 +299,45 @@ def set_selection_text(ax, text):
         fontsize=10,
         family='monospace',
         color='white')
+
+
+def parallelogram_formulas(corners, coord_res):
+    """
+    Calculates the X and Y transformation formulas such that the given corners
+    are mapped to the full area rectangle, for use in adryzz' custom filter.
+    Corners should be given in mm, as an arry-like of shape (4, 2) or (2, 4).
+    Returns a 2-tuple of strings.
+    For reference https://www.desmos.com/calculator/5o1c2fpz4z
+    """
+    if np.shape(corners) == (4, 2):
+        corners = np.array(corners)
+    elif np.shape(corners) == (2, 4):
+        corners = np.transpose(corners)
+    else:
+        raise ValueError('corners must be array-like of shape (2, 4) or (4, 2).')
+    vec1 = corners[1] - corners[0]
+    vec2 = corners[-1] - corners[0]
+    det = np.linalg.det(np.column_stack((vec1, vec2)))
+
+    # dimensions of the region that OTD maps to the playfield
+    # we want to map the parallelogram to this using
+    left = TABLET_WIDTH_MM * 1/5
+    width = TABLET_WIDTH_MM * 3/5
+    bottom = TABLET_HEIGHT_MM * 11/12
+    height = TABLET_HEIGHT_MM * 4/5
+
+    # coefficients for the x formula
+    A = round( width/det * vec2[1], 4)
+    B = round(-width/det * vec2[0], 4)
+    x_det = np.linalg.det(np.column_stack((vec2, corners[0])))
+    C = round( coord_res * (left + width/det * x_det), 1)
+    # coefficients for the y formula
+    D = round( height/det * vec1[1], 4)
+    E = round(-height/det * vec1[0], 4)
+    y_det = np.linalg.det(np.column_stack((vec1, corners[0])))
+    F = round( coord_res * (bottom + height/det * y_det), 1)
+
+    return (f'{A}*x + {B}*y + {C}', f'{D}*x + {E}*y + {F}')
 
 
 def is_rectangle(corners, tolerance=1e-12):
