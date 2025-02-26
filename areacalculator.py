@@ -16,6 +16,7 @@ import os  # Provides utilities for interacting with the operating system
 import threading  # Used for running tasks in parallel
 import time  # For adding delays
 import numpy as np
+import pyperclip
 
 from widgets import ParallelogramSelector
 
@@ -188,10 +189,12 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
     textax = fig.add_axes([0.75, 0.02, 0.14 - button_width, entry_height], visible=False)
     textbox = TextBox(textax, "Tablet coordinate resolution  ", textalignment='center')
     textbox.label.set(color='white')
+    xy_formulas = ('', '')
     def submit_coord_resolution(res):
         if not res.isdigit():
             raise ValueError("res must be a positive integer")
         res = int(res)
+        nonlocal xy_formulas
         xy_formulas = parallelogram_formulas(selector.corners, res)
         selection_text = ("put into Adryzz' Custom Filter:\n" +
             f"X coordinate: {xy_formulas[0]}\n" +
@@ -225,6 +228,20 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
         app.display_message(message, 800, 460)
     infobutton.on_clicked(display_message)
 
+    copy_width = 0.1
+    copy_x_ax = fig.add_axes([0.125, 0.02, copy_width, entry_height], 
+                          visible=False)
+    copy_x_button = Button(copy_x_ax, 'Copy X', color='#FF7EB8')
+    def copy_x(event):
+        pyperclip.copy(xy_formulas[0])
+    copy_x_button.on_clicked(copy_x)
+    copy_y_ax = fig.add_axes([0.135 + copy_width , 0.02, copy_width, entry_height],
+                          visible=False)
+    copy_y_button = Button(copy_y_ax, 'Copy Y', color='#FF7EB8')
+    def copy_y(event):
+        pyperclip.copy(xy_formulas[1])
+    copy_y_button.on_clicked(copy_y)
+
 
     def on_select(eclick, erelease):
         """Handles area selection on the plot and displays measurement details."""
@@ -250,6 +267,8 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
             set_selection_text(ax, selection_text)
             textax.set_visible(False)
             infoax.set_visible(False)
+            copy_x_ax.set_visible(False)
+            copy_y_ax.set_visible(False)
         elif textbox.text.isdigit():
             submit_coord_resolution(textbox.text)
             textax.set_visible(True)
