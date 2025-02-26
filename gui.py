@@ -124,6 +124,13 @@ class TabletAreaGUI:
         credits.pack(pady=1)
         credits.bind("<Button-1>", lambda e: self.open_link("https://x.com/KeepGrindingOsu"))
 
+    def display_message(self, message, width, height):
+        message_window = ctk.CTkToplevel()
+        message_window.title("Coordinate Resolution Info")
+        text = ctk.CTkTextbox(message_window, width=width, height=height, font=("Helvetica", 20), wrap='word')
+        text.pack(padx=20, pady=20)
+        text.insert('0.0', message)
+
     def open_link(self, url):
         """Open a web link in the default browser"""
         webbrowser.open_new(url)
@@ -154,7 +161,7 @@ class TabletAreaGUI:
             self.tracking = True
             self.status_label.configure(text="Tracking... Press F6 to stop")
             self.root.iconify()
-            areacalculator.track_cursor_movement()
+            areacalculator.track_cursor_movement(self)
     
     def stop_tracking(self):
         """Stop tracking and show results"""
