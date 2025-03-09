@@ -4,20 +4,15 @@ import base64
 import ctypes  # Provides access to Windows API for screen dimensions
 import keyboard  # Used for detecting key presses
 import subprocess  # Enables running external processes
-import psutil  # Used for system and process utilities
 import matplotlib.pyplot as plt  # For plotting cursor movement
 from matplotlib.widgets import TextBox, Button
-import tkinter as tk  # GUI library for creating input forms
-from tkinter import ttk  # Themed widgets for tkinter
 import customtkinter as ctk
-from CustomTkinterMessagebox import CTkMessagebox
 import tempfile  # For creating temporary files
 import os  # Provides utilities for interacting with the operating system
 import threading  # Used for running tasks in parallel
 import time  # For adding delays
 import numpy as np
 import pyperclip
-
 from widgets import ParallelogramSelector
 
 # Initialize AutoHotkey interface
@@ -145,7 +140,7 @@ def cursor_to_mm(x, y):
     mm_y = (y / SCREEN_HEIGHT) * TABLET_HEIGHT_MM
     return mm_x, mm_y
 
-def plot_cursor_positions(positions_x, positions_y, measurements, app):
+def plot_cursor_positions(positions_x, positions_y, app):
     """Plots the cursor movement path and allows measuring selected areas."""
 
     # find figsize matching tablet proportions
@@ -189,6 +184,7 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
     textax = fig.add_axes([0.75, 0.02, 0.14 - button_width, entry_height], visible=False)
     textbox = TextBox(textax, "Tablet coordinate resolution  ", textalignment='center')
     textbox.label.set(color='white')
+    textax.set_facecolor("#2B2B2B")  
     xy_formulas = ('', '')
     def submit_coord_resolution(res):
         if not res.isdigit():
@@ -212,7 +208,7 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
         "OpenTabletDriver does not natively support non-rectangular tablet areas."
         "To get a parallelogram-shaped tablet area, you can use Adryzz' Custom Filter. "
         "This plugin works directly with tablet coordinates, so to calculate the correct "
-        "formula for your selection, we need to know the tablet coordinate resolution of "
+        "formula for your selection, we need to know the tablet cfrom matplotlib.patches import Rectangleoordinate resolution of "
         "your tablet. Most Wacom tablets have 100 coordinates per mm while the Gaomon S620 "
         "has 200. \n"
         "\n"
@@ -223,11 +219,39 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
         "3. Go to the Custom Filter Settings and set the X coordinate polynomial to 10000 (just the number, without any variables). \n"
         "4. Apply the setting and check where your cursor ends up when you move your pen. If it's somewhere in the middle of the screen, increase the number from 10000. If the cursor is hugging the right edge of the screen, decrease the number. Repeat this until you find the number right where the cursor meets the right edge.\n"
         "5. Divide this number by the width of your full area in mm to get the tablet coordinate resolution. If your result is close to a round number, it's likely that the round number is the true resolution."
-    )
+        )
+    
     def display_message(event):
-        app.display_message(message, 800, 460)
-    infobutton.on_clicked(display_message)
+        info = ctk.CTk()
+        info.title("Tablet Coordinate Resolution Info")
+        info.geometry("800x490")
+        info.resizable(False,False)
 
+        # Create temp file for icon
+        icon_file = tempfile.NamedTemporaryFile(delete=False, suffix='.ico')
+        icon_file.write(base64.b64decode(ICON))
+        icon_file.close()
+            
+        # Set window icon
+        info.iconbitmap(icon_file.name)
+            
+        # Clean up temp file
+        os.unlink(icon_file.name)
+
+        frame = ctk.CTkFrame(info)
+        frame.pack(padx=10, pady=10, fill="both", expand=True)
+
+
+        text_area = ctk.CTkTextbox(frame, wrap="word", width=750, height=400, font=("Arial", 18))
+        text_area.insert("1.0", message)
+        text_area.configure(state="disabled") 
+        text_area.columnconfigure(2, weight=1)
+        text_area.pack(padx=10, pady=10, fill="both", expand=True)
+
+        info.mainloop()
+    
+    infobutton.on_clicked(display_message)
+        
     copy_width = 0.1
     copy_x_ax = fig.add_axes([0.125, 0.02, copy_width, entry_height], 
                           visible=False)
@@ -260,6 +284,8 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
         
             selection_text = (
                 f"Playfield Area: {playfield_width:.1f}x{playfield_height:.1f}mm\n"
+                f"\n"
+                f"Put in OTD:\n"
                 f"Screen Area: {screen_width:.1f}x{screen_height:.1f}mm\n"
                 f"Center: X={center[0]:.1f}mm, Y={center[1]:.1f}mm\n"
                 f"Rotation: {angle * 180 / np.pi:.1f}°"
@@ -289,20 +315,6 @@ def plot_cursor_positions(positions_x, positions_y, measurements, app):
         drag_from_anywhere=True,
         props=dict(facecolor='#FF7EB8', edgecolor='#FF7EB8', alpha=0.5, fill=True)
     )
-    
-    ax.text(0.975, 0.96, measurements, 
-            transform=ax.transAxes,
-            verticalalignment='top',
-            horizontalalignment='right',
-            bbox=dict(
-                facecolor='#2E2E2E',
-                alpha=0.9,
-                edgecolor='#FF7EB8',
-                boxstyle='round,pad=1'
-            ),
-            fontsize=10,
-            family='monospace',
-            color='white')
     
     plt.show()
 
@@ -409,18 +421,11 @@ def track_cursor_movement(app):
                 heightad = (max_mm_y - min_mm_y) * 1.25
                 center_x = min_mm_x + (max_mm_x - min_mm_x) / 2
                 center_y = min_mm_y + (max_mm_y - min_mm_y) / 23/48
-                measurements = (
-                    f"Final Measurements:\n"
-                    f"Area: {width:.1f}x{height:.1f}mm\n"
-                    f"Adjusted Area: {widthad:.1f}x{heightad:.1f}mm\n"
-                    f"Center: X={center_x:.1f}mm, Y={center_y:.1f}mm\n"
-                    f"Min: {min_mm_x:.1f}x{min_mm_y:.1f}mm\n"
-                    f"Max: {max_mm_x:.1f}x{max_mm_y:.1f}mm"
-                )
+
                 # Restore the cursor visibility
                 show_cursor()
                 # Plot the cursor positions
-                plot_cursor_positions(positions_x, positions_y, measurements, app)
+                plot_cursor_positions(positions_x, positions_y, app)
                 break
 
             x, y = pyautogui.position()
