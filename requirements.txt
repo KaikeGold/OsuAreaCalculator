@@ -1,0 +1,8 @@
+﻿pyautogui==0.9.54
+screeninfo==0.8.1
+matplotlib==3.10.3
+customtkinter==5.2.2
+numpy==2.2.5
+keyboard==0.13.5
+pyperclip==1.9.0
+CustomTkinterMessagebox==0.0.4
