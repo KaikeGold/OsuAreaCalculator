@@ -7,6 +7,7 @@ If you're unfamiliar with GitHub, here’s a direct download link:  [OsuAreaCalc
 Since the provided .exe file has not been signed, Microsoft does not consider it trustworthy and marks it as a virus.
 To prevent the Virus pop up from happening, you can run the program from source code.
 
+
 ### Install Python
 Install [Python](https://www.python.org/downloads/) on your system. Latest tested version: 3.12
 
@@ -14,7 +15,9 @@ Install [Python](https://www.python.org/downloads/) on your system. Latest teste
 1. Go to 'Code'
 2. Download as Zip
 3. Extract the zip to your directory of choice
-   ![img.png](gfx/dl_src.png)
+
+![image](https://github.com/user-attachments/assets/abde6269-73e6-4f2d-ba18-014b5edb1106)
+
 
 ### Install missing modules
 1. Open the extracted directory in explorer
