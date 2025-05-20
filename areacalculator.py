@@ -76,15 +76,8 @@ ExitApp
 '''
 
 def hide_cursor():
-    """Hides the system cursor using an AutoHotkey script/X11 protocols."""
-    if platform.system() == 'Linux':
-        d = display.Display()
-        root = d.screen().root
-        root.grab_pointer(True,
-                          X.ButtonPressMask | X.ButtonReleaseMask | X.PointerMotionMask,
-                          X.GrabModeAsync, X.GrabModeAsync, 0, 0, X.CurrentTime)
-        d.sync()
-    else:
+    """Hides the system cursor using an AutoHotkey script."""
+    if platform.system() == 'Windows':
         try:
             # Create temporary script file
             with tempfile.NamedTemporaryFile(delete=False, suffix='.ahk') as tf:
@@ -110,11 +103,7 @@ def hide_cursor():
 
 def show_cursor():
     """Restores the system cursor using an AutoHotkey script/X11 protocols."""
-    if platform.system() == 'Linux':
-        d = display.Display()
-        d.ungrab_pointer(X.CurrentTime)
-        d.sync()
-    else:
+    if platform.system() == 'Windows':
         try:
             # Create temporary script file 
             with tempfile.NamedTemporaryFile(delete=False, suffix='.ahk') as tf:
