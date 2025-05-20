@@ -1,9 +1,10 @@
-import pyautogui  # Used for getting the current cursor position
+import platform  # Used to detect Linux
+import subprocess  # Enables running external processes
 from screeninfo import get_monitors  # Fetches monitor information like resolution and dimensions
 import base64
 import ctypes  # Provides access to Windows API for screen dimensions
+from Xlib import X, display  # Provides access to X11 protocols for screen dimensions (and hiding the cursor)
 import keyboard  # Used for detecting key presses
-import subprocess  # Enables running external processes
 import matplotlib.pyplot as plt  # For plotting cursor movement
 from matplotlib.widgets import TextBox, Button
 import customtkinter as ctk
@@ -15,11 +16,21 @@ import numpy as np
 import pyperclip
 from widgets import ParallelogramSelector
 
-# Initialize AutoHotkey interface
-# Retrieve screen dimensions using Windows API
-user32 = ctypes.windll.user32
-SCREEN_WIDTH = user32.GetSystemMetrics(0)  # Screen width in pixels
-SCREEN_HEIGHT = user32.GetSystemMetrics(1)  # Screen height in pixels
+if platform.system() == 'Linux':
+    # Retrieve screen dimensions using X11
+    screen = display.Display().screen()
+    SCREEN_WIDTH = screen.width_in_pixels
+    SCREEN_HEIGHT = screen.height_in_pixels
+                                
+import pyautogui  # Used for getting the current cursor position
+
+if platform.system() == 'Windows':
+    # Initialize AutoHotkey interface
+    # Retrieve screen dimensions using Windows API
+    user32 = ctypes.windll.user32
+    SCREEN_WIDTH = user32.GetSystemMetrics(0)  # Screen width in pixels
+    SCREEN_HEIGHT = user32.GetSystemMetrics(1)  # Screen height in pixels
+
 # Global variables for tablet dimensions in millimeters
 TABLET_WIDTH_MM = 0
 TABLET_HEIGHT_MM = 0
@@ -65,54 +76,67 @@ ExitApp
 '''
 
 def hide_cursor():
-    """Hides the system cursor using an AutoHotkey script."""
-    try:
-        # Create temporary script file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.ahk') as tf:
-            tf.write(HIDE_CURSOR_SCRIPT.encode())
-            temp_script = tf.name
-        
-        # Execute script
-        subprocess.Popen([r"C:\Program Files\AutoHotkey\AutoHotkey.exe", temp_script])
-        
-        # Clean up temp file after a short delay
-        def cleanup():
-            time.sleep(1)
-            try:
-                os.unlink(temp_script)
-            except:
-                pass
-        threading.Thread(target=cleanup).start()
-        
-        return True
-    except Exception as e:
-        print(f"Error hiding cursor: {e}")
-        return False
+    """Hides the system cursor using an AutoHotkey script/X11 protocols."""
+    if platform.system() == 'Linux':
+        d = display.Display()
+        root = d.screen().root
+        root.grab_pointer(True,
+                          X.ButtonPressMask | X.ButtonReleaseMask | X.PointerMotionMask,
+                          X.GrabModeAsync, X.GrabModeAsync, 0, 0, X.CurrentTime)
+        d.sync()
+    else:
+        try:
+            # Create temporary script file
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.ahk') as tf:
+                tf.write(HIDE_CURSOR_SCRIPT.encode())
+                temp_script = tf.name
+            
+            # Execute script
+            subprocess.Popen([r"C:\Program Files\AutoHotkey\AutoHotkey.exe", temp_script])
+            
+            # Clean up temp file after a short delay
+            def cleanup():
+                time.sleep(1)
+                try:
+                    os.unlink(temp_script)
+                except:
+                    pass
+            threading.Thread(target=cleanup).start()
+            
+            return True
+        except Exception as e:
+            print(f"Error hiding cursor: {e}")
+            return False
 
 def show_cursor():
-    """Restores the system cursor using an AutoHotkey script."""
-    try:
-        # Create temporary script file 
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.ahk') as tf:
-            tf.write(SHOW_CURSOR_SCRIPT.encode())
-            temp_script = tf.name
-        
-        # Execute script
-        subprocess.Popen([r"C:\Program Files\AutoHotkey\AutoHotkey.exe", temp_script])
-        
-        # Clean up temp file after a short delay
-        def cleanup():
-            time.sleep(1)
-            try:
-                os.unlink(temp_script)
-            except:
-                pass
-        threading.Thread(target=cleanup).start()
-        
-        return True
-    except Exception as e:
-        print(f"Error showing cursor: {e}")
-        return False
+    """Restores the system cursor using an AutoHotkey script/X11 protocols."""
+    if platform.system() == 'Linux':
+        d = display.Display()
+        d.ungrab_pointer(X.CurrentTime)
+        d.sync()
+    else:
+        try:
+            # Create temporary script file 
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.ahk') as tf:
+                tf.write(SHOW_CURSOR_SCRIPT.encode())
+                temp_script = tf.name
+            
+            # Execute script
+            subprocess.Popen([r"C:\Program Files\AutoHotkey\AutoHotkey.exe", temp_script])
+            
+            # Clean up temp file after a short delay
+            def cleanup():
+                time.sleep(1)
+                try:
+                    os.unlink(temp_script)
+                except:
+                    pass
+            threading.Thread(target=cleanup).start()
+            
+            return True
+        except Exception as e:
+            print(f"Error showing cursor: {e}")
+            return False
 
 def get_monitor_info():
     """Retrieves and prints information about all connected monitors."""
@@ -167,7 +191,7 @@ def plot_cursor_positions(positions_x, positions_y, app):
     icon_file = tempfile.NamedTemporaryFile(delete=False, suffix='.ico')
     icon_file.write(base64.b64decode(ICON))
     icon_file.close()
-    fig.canvas.manager.window.wm_iconbitmap(icon_file.name)
+    # fig.canvas.manager.window.wm_iconbitmap(icon_file.name)
     os.unlink(icon_file.name)
 
     ax.tick_params(axis='x', colors='white')
@@ -233,7 +257,7 @@ def plot_cursor_positions(positions_x, positions_y, app):
         icon_file.close()
             
         # Set window icon
-        info.iconbitmap(icon_file.name)
+        # info.iconbitmap(icon_file.name)
             
         # Clean up temp file
         os.unlink(icon_file.name)
