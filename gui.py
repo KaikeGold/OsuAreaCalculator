@@ -30,7 +30,8 @@ class TabletAreaGUI:
         icon_file.close()
             
         # Set window icon
-        # self.root.iconbitmap(icon_file.name)
+        if platform.system() == 'Windows':
+            self.root.iconbitmap(icon_file.name)
             
         # Clean up temp file
         os.unlink(icon_file.name)

@@ -180,7 +180,8 @@ def plot_cursor_positions(positions_x, positions_y, app):
     icon_file = tempfile.NamedTemporaryFile(delete=False, suffix='.ico')
     icon_file.write(base64.b64decode(ICON))
     icon_file.close()
-    # fig.canvas.manager.window.wm_iconbitmap(icon_file.name)
+    if platform.system() == 'Windows':
+        fig.canvas.manager.window.wm_iconbitmap(icon_file.name)
     os.unlink(icon_file.name)
 
     ax.tick_params(axis='x', colors='white')
@@ -246,7 +247,8 @@ def plot_cursor_positions(positions_x, positions_y, app):
         icon_file.close()
             
         # Set window icon
-        # info.iconbitmap(icon_file.name)
+        if platform.system() == 'Windows':
+            info.iconbitmap(icon_file.name)
             
         # Clean up temp file
         os.unlink(icon_file.name)
