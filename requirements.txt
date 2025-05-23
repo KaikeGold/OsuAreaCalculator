@@ -5,4 +5,5 @@ customtkinter==5.2.2
 numpy==2.2.5
 keyboard==0.13.5
 pyperclip==1.9.0
-CustomTkinterMessagebox==0.0.4
+CTkMessagebox~=2.7
+python3-xlib~=0.15

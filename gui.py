@@ -1,12 +1,16 @@
-from CustomTkinterMessagebox import CTkMessagebox
-import areacalculator
+from CTkMessagebox import CTkMessagebox
 import keyboard
 import webbrowser
 import base64
 import tempfile
 import os
 import customtkinter as ctk
-# Add icon as base64 string
+import subprocess
+import platform
+if platform.system() == 'Linux':
+    # Resolve "Xlib.error.DisplayConnectionError"
+    subprocess.run(['xhost', '+'])
+import areacalculator
 
 class TabletAreaGUI:
     """GUI for tablet area calculator application"""
@@ -26,7 +30,8 @@ class TabletAreaGUI:
         icon_file.close()
             
         # Set window icon
-        self.root.iconbitmap(icon_file.name)
+        if platform.system() == 'Windows':
+            self.root.iconbitmap(icon_file.name)
             
         # Clean up temp file
         os.unlink(icon_file.name)
@@ -151,9 +156,9 @@ class TabletAreaGUI:
                 raise RuntimeError("Failed to set dimensions")
                 
         except ValueError as e:
-            CTkMessagebox.messagebox("Error", f"Invalid dimensions: You should put numbers there xD")
+            CTkMessagebox(title="Error", message=f"Invalid dimensions: You should put numbers there xD")
         except Exception as e:
-            CTkMessagebox.messagebox("Error", f"Unexpected error: {e}")
+            CTkMessagebox(title="Error", message=f"Unexpected error: {e}")
     
     def start_tracking(self):
         """Start tracking cursor movement"""
@@ -177,3 +182,7 @@ class TabletAreaGUI:
 if __name__ == "__main__":
     app = TabletAreaGUI()
     app.run()
+   
+    if platform.system() == 'Linux':
+        # Resetting the access control
+        subprocess.run(['xhost', '-'])
