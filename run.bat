@@ -39,5 +39,4 @@ if '%errorlevel%' NEQ '0' (
 :--------------------------------------
 
 REM
-python gui.py
-PAUSE
+start pythonw gui.py
