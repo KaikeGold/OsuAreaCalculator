@@ -86,8 +86,6 @@ class TabletAreaGUI:
         
         - Preset dimensions for areas dropdown
         """
-
-        # Load preset dimensions from a readable text file
         preset_dimensions = {}
         preset_file = os.path.join(os.path.dirname(__file__), "tabletInfo.txt")
         if os.path.exists(preset_file):
@@ -121,11 +119,9 @@ class TabletAreaGUI:
             "Veikk 640": (152.4, 101.6),
             }
 
-        # Searchable preset dropdown
         dim_frame = ctk.CTkFrame(dim_frame)
         dim_frame.pack(fill="x", padx=10, pady=10)
 
-        # 1. Search Entry
         search_entry = ctk.CTkEntry(
             dim_frame,
             placeholder_text="Search preset...",
@@ -133,7 +129,7 @@ class TabletAreaGUI:
         )
         search_entry.pack(pady=(0, 5), fill="x")
 
-        # 2. OptionMenu with StringVar
+
         self.preset_var = ctk.StringVar(value="Select Preset")
         self.preset_menu = ctk.CTkOptionMenu(
             dim_frame,
@@ -146,18 +142,14 @@ class TabletAreaGUI:
             width=250
         )
         self.preset_menu.pack(pady=(0, 10), fill="x")
-
-        # 3. Update function for dynamic filtering
         def update_dropdown(event=None):
             search_term = search_entry.get().lower()
     
-            # Filter keys based on search term
             filtered = [
                 key for key in preset_dimensions.keys()
                 if search_term in key.lower()
             ]
     
-        # Handle no matches
             if not filtered:
                 filtered = ["No match"]
                 self.preset_menu.configure(values=filtered)
@@ -165,11 +157,7 @@ class TabletAreaGUI:
             else:
                 self.preset_menu.configure(values=filtered)
                 self.preset_var.set(filtered[0])
-
-        # 4. Bind search entry to update function
         search_entry.bind("<KeyRelease>", update_dropdown)
-
-        # Optional: Clear selection when search starts
         search_entry.bind("<FocusIn>", lambda e: self.preset_var.set(""))
 
 

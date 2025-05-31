@@ -200,7 +200,6 @@ def plot_cursor_positions(positions_x, positions_y, app):
     ax.plot(positions_x, positions_y, '#FF7EB8', alpha=0.7, linewidth=1.5)
     ax.invert_yaxis()
 
-    # PREDICT AND DISPLAY BEST AREA
     best_area = predict_best_area(app)
     if best_area:
         best_area_x, best_area_y = best_area
@@ -211,15 +210,13 @@ def plot_cursor_positions(positions_x, positions_y, app):
             min_y = best_area_y['Y_mm'].min()
             max_y = best_area_y['Y_mm'].max()
             
-            #this formula is taken from the on_select function
             center_x = (min_x + max_x) / 2
             center_y = (min_y + max_y) / 2
-            # Create rectangle patch
+
             rect = plt.Rectangle((min_x, min_y), max_x - min_x, max_y - min_y, 
                                 fill=False, edgecolor='cyan', linewidth=2, linestyle='--')
             ax.add_patch(rect)
             
-            # Add text annotation
             area_text = (
                 f"Predicted Best Area:\n"
                 f"Input this into OpenTabletDriver:\n"
@@ -238,7 +235,6 @@ def plot_cursor_positions(positions_x, positions_y, app):
 
 
     entry_height = 0.04
-    # make info button square
     button_width = height / width * entry_height
     textax = fig.add_axes([0.75, 0.02, 0.14 - button_width, entry_height], visible=False)
     textbox = TextBox(textax, "Tablet coordinate resolution  ", textalignment='center')
@@ -477,21 +473,17 @@ def predict_statistical_area():
     if x_data.empty or y_data.empty:
         return None
     
-    # Calculate the mean position
     mean_x = x_data['X_mm'].mean()
     mean_y = y_data['Y_mm'].mean()
-    
-    # Calculate the standard deviation
     std_x = x_data['X_mm'].std()
     std_y = y_data['Y_mm'].std()
     
-    # Define thresholds for the best area (mean ± 2 std)
+    #defining thresholds
     min_x = max(0, mean_x - 2*std_x)
     max_x = min(TABLET_WIDTH_MM, mean_x + 2*std_x)
     min_y = max(0, mean_y - 2*std_y)
     max_y = min(TABLET_HEIGHT_MM, mean_y + 2*std_y)
     
-    # Filter data within predicted area
     best_area_x = x_data[(x_data['X_mm'] >= min_x) & (x_data['X_mm'] <= max_x)]
     best_area_y = y_data[(y_data['Y_mm'] >= min_y) & (y_data['Y_mm'] <= max_y)]
     
@@ -511,7 +503,7 @@ def predict_best_area(app):
     positions_scaled = scaler.fit_transform(positions)
     
     # Apply DBSCAN clustering
-    dbscan = DBSCAN(eps=(1/240), min_samples=1000, algorithm='ball_tree', leaf_size=30).fit(positions_scaled) #need to tune the parameters
+    dbscan = DBSCAN(eps=(1/240), min_samples=1000, algorithm='ball_tree', leaf_size=30).fit(positions_scaled) #need to tune the parameters more (not final)
     labels = dbscan.labels_
     
     unique_labels, counts = np.unique(labels[labels >= 0], return_counts=True)

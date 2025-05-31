@@ -2,6 +2,8 @@
 screeninfo==0.8.1
 matplotlib==3.10.3
 customtkinter==5.2.2
+pandas==2.2.3
+scikit-learn==1.6.1
 numpy==2.2.5
 keyboard==0.13.5
 pyperclip==1.9.0
