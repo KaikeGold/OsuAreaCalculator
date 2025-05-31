@@ -211,6 +211,9 @@ def plot_cursor_positions(positions_x, positions_y, app):
             min_y = best_area_y['Y_mm'].min()
             max_y = best_area_y['Y_mm'].max()
             
+            #this formula is taken from the on_select function
+            center_x = (min_x + max_x) / 2
+            center_y = (min_y + max_y) / 2
             # Create rectangle patch
             rect = plt.Rectangle((min_x, min_y), max_x - min_x, max_y - min_y, 
                                 fill=False, edgecolor='cyan', linewidth=2, linestyle='--')
@@ -222,7 +225,7 @@ def plot_cursor_positions(positions_x, positions_y, app):
                 f"Input this into OpenTabletDriver:\n"
                 f"Width: {max_x - min_x:.1f}mm\n"
                 f"Height: {max_y - min_y:.1f}mm\n"
-                f"Position: (x: {min_x:.1f}, y:{min_y:.1f})"
+                f"Position: X={center_x:.1f}mm, Y={center_y:.1f}mm\n"
             )
             ax.text(0.75, 0.86, area_text,
                    transform=ax.transAxes,
@@ -242,6 +245,7 @@ def plot_cursor_positions(positions_x, positions_y, app):
     textbox.label.set(color='white')
     textax.set_facecolor("#2B2B2B")  
     xy_formulas = ('', '')
+    
     def submit_coord_resolution(res):
         if not res.isdigit():
             raise ValueError("res must be a positive integer")
@@ -507,7 +511,7 @@ def predict_best_area(app):
     positions_scaled = scaler.fit_transform(positions)
     
     # Apply DBSCAN clustering
-    dbscan = DBSCAN(eps=(1/60), min_samples=500, algorithm='ball_tree', leaf_size=30).fit(positions_scaled) #need to tune the parameters
+    dbscan = DBSCAN(eps=(1/240), min_samples=1000, algorithm='ball_tree', leaf_size=30).fit(positions_scaled) #need to tune the parameters
     labels = dbscan.labels_
     
     unique_labels, counts = np.unique(labels[labels >= 0], return_counts=True)

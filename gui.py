@@ -82,10 +82,33 @@ class TabletAreaGUI:
         Preset dimensions for areas dropdown:
         - Reference for Wacom Area: https://docs.google.com/spreadsheets/d/125LNzGmidy1gagwYUt12tRhrNdrWFHhWon7kxWY7iWU/edit?gid=854129046#gid=854129046
         - Thanks 5WC PH for the list of other tablet areas
+        - Thanks @peroroo for datascraping the tabletInfo.txt file
+        
         - Preset dimensions for areas dropdown
         """
 
-        preset_dimensions = {
+        # Load preset dimensions from a readable text file
+        preset_dimensions = {}
+        preset_file = os.path.join(os.path.dirname(__file__), "tabletInfo.txt")
+        if os.path.exists(preset_file):
+            with open(preset_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    try:
+                        if line.endswith(","):
+                            line = line[:-1]
+                            name, dims = line.split(":", 1)
+                            dims = dims.strip()
+                            if dims.startswith("(") and dims.endswith(")"):
+                                dims = dims[1:-1]
+                                width, height = map(float, dims.split(","))
+                                preset_dimensions[name.strip().strip('"')] = (width, height)
+                    except Exception:
+                        continue
+        else:
+            preset_dimensions = {
             "Wacom 471/472/480/490/4100": (152, 95),
             "Wacom 672/680/690/6100": (216, 135),
             "Wacom 470": (147.2, 92),
@@ -96,20 +119,58 @@ class TabletAreaGUI:
             "Huion H420": (101.6, 63.5),
             "Huion H640P": (152.4, 95.25),
             "Veikk 640": (152.4, 101.6),
-        }
+            }
 
-        # Preset dimensions dropdown
+        # Searchable preset dropdown
+        dim_frame = ctk.CTkFrame(dim_frame)
+        dim_frame.pack(fill="x", padx=10, pady=10)
+
+        # 1. Search Entry
+        search_entry = ctk.CTkEntry(
+            dim_frame,
+            placeholder_text="Search preset...",
+            width=250
+        )
+        search_entry.pack(pady=(0, 5), fill="x")
+
+        # 2. OptionMenu with StringVar
         self.preset_var = ctk.StringVar(value="Select Preset")
-        preset_menu = ctk.CTkOptionMenu(
-            dim_frame, 
-            variable=self.preset_var, 
-            values=list(preset_dimensions.keys()),
+        self.preset_menu = ctk.CTkOptionMenu(
+            dim_frame,
+            variable=self.preset_var,
+            values=list(preset_dimensions.keys()),  # Initial values
             command=lambda selected: self.set_preset_dimensions(selected, preset_dimensions),
             fg_color="#FF7EB8",
             button_color="#FF7EB8",
-            dropdown_fg_color="#FF7EB8"
+            dropdown_fg_color="#FF7EB8",
+            width=250
         )
-        preset_menu.pack(pady=10)
+        self.preset_menu.pack(pady=(0, 10), fill="x")
+
+        # 3. Update function for dynamic filtering
+        def update_dropdown(event=None):
+            search_term = search_entry.get().lower()
+    
+            # Filter keys based on search term
+            filtered = [
+                key for key in preset_dimensions.keys()
+                if search_term in key.lower()
+            ]
+    
+        # Handle no matches
+            if not filtered:
+                filtered = ["No match"]
+                self.preset_menu.configure(values=filtered)
+                self.preset_var.set("No match")
+            else:
+                self.preset_menu.configure(values=filtered)
+                self.preset_var.set(filtered[0])
+
+        # 4. Bind search entry to update function
+        search_entry.bind("<KeyRelease>", update_dropdown)
+
+        # Optional: Clear selection when search starts
+        search_entry.bind("<FocusIn>", lambda e: self.preset_var.set(""))
 
 
         # Status
