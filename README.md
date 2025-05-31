@@ -1,4 +1,4 @@
-# OsuAreaCalculator
+# OsuAreaCalculator with Machine Learning
 
 ## Update
 This version is just a cloned repo of the actual project found [here](https://github.com/KaikeGold/OsuAreaCalculator). 
