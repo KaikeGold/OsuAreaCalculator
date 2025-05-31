@@ -77,6 +77,40 @@ class TabletAreaGUI:
         def on_height_enter(event):
             self.set_dimensions()
         self.height_entry.bind('<Return>', on_height_enter)
+       
+        """
+        Preset dimensions for areas dropdown:
+        - Reference for Wacom Area: https://docs.google.com/spreadsheets/d/125LNzGmidy1gagwYUt12tRhrNdrWFHhWon7kxWY7iWU/edit?gid=854129046#gid=854129046
+        - Thanks 5WC PH for the list of other tablet areas
+        - Preset dimensions for areas dropdown
+        """
+
+        preset_dimensions = {
+            "Wacom 471/472/480/490/4100": (152, 95),
+            "Wacom 672/680/690/6100": (216, 135),
+            "Wacom 470": (147.2, 92),
+            "Wacom 670": (216.48, 137),
+            "XP-Pen G640": (152.4, 101.6),
+            "XP-Pen G640s": (165, 103),
+            "XP-Pen G430": (101.6, 76.2),
+            "Huion H420": (101.6, 63.5),
+            "Huion H640P": (152.4, 95.25),
+            "Veikk 640": (152.4, 101.6),
+        }
+
+        # Preset dimensions dropdown
+        self.preset_var = ctk.StringVar(value="Select Preset")
+        preset_menu = ctk.CTkOptionMenu(
+            dim_frame, 
+            variable=self.preset_var, 
+            values=list(preset_dimensions.keys()),
+            command=lambda selected: self.set_preset_dimensions(selected, preset_dimensions),
+            fg_color="#FF7EB8",
+            button_color="#FF7EB8",
+            dropdown_fg_color="#FF7EB8"
+        )
+        preset_menu.pack(pady=10)
+
 
         # Status
         self.status_label = ctk.CTkLabel(container, text="Enter your tablet dimensions and click Set.\n" "\n" "You need to provide the full dimensions of your tablet's active area.", font=("Arial", 12, "bold"))
@@ -174,6 +208,15 @@ class TabletAreaGUI:
             self.tracking = False
             self.status_label.configure(text="Tracking stopped. Showing results...")
             self.root.deiconify()
+    
+    def set_preset_dimensions(self, selected_key, preset_dict):
+        """Set dimensions based on selected preset"""
+        if selected_key in preset_dict:
+            width, height = preset_dict[selected_key]
+            self.width_entry.delete(0, 'end')
+            self.width_entry.insert(0, str(width))
+            self.height_entry.delete(0, 'end')
+            self.height_entry.insert(0, str(height))
     
     def run(self):
         """Start the application"""
