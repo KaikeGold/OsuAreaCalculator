@@ -1,7 +1,6 @@
 # OsuAreaCalculator with Machine Learning
 
 ## Disclaimer
-This version is just a cloned repo of the actual project found [here](https://github.com/KaikeGold/OsuAreaCalculator). Please support the original [creator](https://github.com/KaikeGold)
 
 This version of the OsuAreaCalculator still retains its original features, but implements machine learning using [DBSCAN](https://www.geeksforgeeks.org/dbscan-clustering-in-ml-density-based-clustering/) to find the most optimal area for the user. Additionally, a dropdownm menu for the active areas of tablet models have been added to the gui which were datascraped from [OpenTabletDriver Configs](https://github.com/OpenTabletDriver/OpenTabletDriver/tree/master/OpenTabletDriver.Configurations/Configurations) by @perororoo 
 
