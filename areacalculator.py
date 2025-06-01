@@ -14,7 +14,11 @@ import threading  # Used for running tasks in parallel
 import time  # For adding delays
 import numpy as np
 import pyperclip
+import pandas as pd
 from widgets import ParallelogramSelector
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+
 
 if platform.system() == 'Linux':
     # Retrieve screen dimensions using X11
@@ -192,14 +196,52 @@ def plot_cursor_positions(positions_x, positions_y, app):
     plt.grid(True, color='#444444')
     fig.canvas.manager.set_window_title('Your Area')
 
+    # Plot the cursor positions
+    ax.plot(positions_x, positions_y, '#FF7EB8', alpha=0.7, linewidth=1.5)
+    ax.invert_yaxis()
+
+    best_area = predict_best_area(app)
+    if best_area:
+        best_area_x, best_area_y = best_area
+        if not best_area_x.empty and not best_area_y.empty:
+            # Calculate rectangle boundaries
+            min_x = best_area_x['X_mm'].min()
+            max_x = best_area_x['X_mm'].max()
+            min_y = best_area_y['Y_mm'].min()
+            max_y = best_area_y['Y_mm'].max()
+            
+            center_x = (min_x + max_x) / 2
+            center_y = (min_y + max_y) / 2
+
+            rect = plt.Rectangle((min_x, min_y), max_x - min_x, max_y - min_y, 
+                                fill=False, edgecolor='cyan', linewidth=2, linestyle='--')
+            ax.add_patch(rect)
+            
+            area_text = (
+                f"Predicted Best Area:\n"
+                f"Input this into OpenTabletDriver:\n"
+                f"Width: {max_x - min_x:.1f}mm\n"
+                f"Height: {max_y - min_y:.1f}mm\n"
+                f"Position: X={center_x:.1f}mm, Y={center_y:.1f}mm\n"
+            )
+            ax.text(0.75, 0.86, area_text,
+                   transform=ax.transAxes,
+                   verticalalignment='top',
+                   bbox=dict(facecolor='#2E2E2E', alpha=0.9, 
+                             edgecolor='cyan', boxstyle='round,pad=1'),
+                   fontsize=10,
+                   family='monospace',
+                   color='white')
+
+
     entry_height = 0.04
-    # make info button square
     button_width = height / width * entry_height
     textax = fig.add_axes([0.75, 0.02, 0.14 - button_width, entry_height], visible=False)
     textbox = TextBox(textax, "Tablet coordinate resolution  ", textalignment='center')
     textbox.label.set(color='white')
     textax.set_facecolor("#2B2B2B")  
     xy_formulas = ('', '')
+    
     def submit_coord_resolution(res):
         if not res.isdigit():
             raise ValueError("res must be a positive integer")
@@ -410,14 +452,86 @@ def is_rectangle(corners, tolerance=1e-12):
         return False
     return True
 
+cursor_positions_x = []
+cursor_positions_y = []
+def get_x_data():
+
+    global cursor_positions_x
+    return pd.DataFrame(cursor_positions_x, columns=['X_mm'])
+
+def get_y_data():
+    global cursor_positions_y
+    return pd.DataFrame(cursor_positions_y, columns=['Y_mm'])
+
+def predict_statistical_area():
+    """Fallback method using statistical approach when clustering fails."""
+    global cursor_positions_x, cursor_positions_y
+    
+    x_data = pd.DataFrame(cursor_positions_x, columns=['X_mm'])
+    y_data = pd.DataFrame(cursor_positions_y, columns=['Y_mm'])
+    
+    if x_data.empty or y_data.empty:
+        return None
+    
+    mean_x = x_data['X_mm'].mean()
+    mean_y = y_data['Y_mm'].mean()
+    std_x = x_data['X_mm'].std()
+    std_y = y_data['Y_mm'].std()
+    
+    #defining thresholds
+    min_x = max(0, mean_x - 2*std_x)
+    max_x = min(TABLET_WIDTH_MM, mean_x + 2*std_x)
+    min_y = max(0, mean_y - 2*std_y)
+    max_y = min(TABLET_HEIGHT_MM, mean_y + 2*std_y)
+    
+    best_area_x = x_data[(x_data['X_mm'] >= min_x) & (x_data['X_mm'] <= max_x)]
+    best_area_y = y_data[(y_data['Y_mm'] >= min_y) & (y_data['Y_mm'] <= max_y)]
+    
+    return best_area_x, best_area_y
+
+def predict_best_area(app):
+    """Predicts the best area based on cursor movement data using DBSCAN clustering."""
+    global cursor_positions_x, cursor_positions_y
+    
+    positions = np.column_stack((cursor_positions_x, cursor_positions_y))
+    
+    if len(positions) < 10: 
+        print("Not enough data points for clustering. Using statistical method.")
+        return predict_statistical_area()
+    
+    scaler = StandardScaler()
+    positions_scaled = scaler.fit_transform(positions)
+    
+    # Apply DBSCAN clustering
+    dbscan = DBSCAN(eps=(1/240), min_samples=1000, algorithm='ball_tree', leaf_size=30).fit(positions_scaled) #need to tune the parameters more (not final)
+    labels = dbscan.labels_
+    
+    unique_labels, counts = np.unique(labels[labels >= 0], return_counts=True)
+    
+    if len(unique_labels) == 0: 
+        print("No clusters detected. Using statistical method.")
+        return predict_statistical_area()
+    
+    main_cluster_label = unique_labels[np.argmax(counts)]
+    main_cluster_points = positions[labels == main_cluster_label]
+    
+    min_x, min_y = np.min(main_cluster_points, axis=0)
+    max_x, max_y = np.max(main_cluster_points, axis=0)
+    
+    best_area_x = pd.DataFrame(main_cluster_points[:, 0], columns=['X_mm'])
+    best_area_y = pd.DataFrame(main_cluster_points[:, 1], columns=['Y_mm'])
+    
+    return best_area_x, best_area_y
+    
 def track_cursor_movement(app):
     """Tracks the cursor movement in real-time and calculates the tablet area used."""
+    global cursor_positions_x, cursor_positions_y
     tracking = True
     last_x = last_y = 0
     max_mm_x = max_mm_y = float('-inf')
     min_mm_x = min_mm_y = float('inf')
-    positions_x = []
-    positions_y = []
+    cursor_positions_x = []
+    cursor_positions_y = []
     
     # Display monitor information
     get_monitor_info()
@@ -440,15 +554,15 @@ def track_cursor_movement(app):
                 # Restore the cursor visibility
                 show_cursor()
                 # Plot the cursor positions
-                plot_cursor_positions(positions_x, positions_y, app)
+                plot_cursor_positions(cursor_positions_x, cursor_positions_y, app)
                 break
 
             x, y = pyautogui.position()
             if (x != last_x) or (y != last_y):
                 # Convert screen coordinates to tablet dimensions
                 mm_x, mm_y = cursor_to_mm(x, y)
-                positions_x.append(mm_x)
-                positions_y.append(mm_y)
+                cursor_positions_x.append(mm_x)
+                cursor_positions_y.append(mm_y)
 
                 max_mm_x = max(max_mm_x, mm_x)
                 max_mm_y = max(max_mm_y, mm_y)
