@@ -1,7 +1,7 @@
 # OsuAreaCalculator
 
 ## PreBuild
-If you're unfamiliar with GitHub, here’s a direct download link:  [OsuAreaCalculator.exe](https://github.com/KaikeGold/OsuAreaCalculator/releases/download/OsuAreaCalculatorParalellogramArea/OsuAreaCalculator.exe)
+If you're unfamiliar with GitHub, here’s a direct download link:  [OsuAreaCalculator.exe](https://github.com/KaikeGold/OsuAreaCalculator/releases/download/OsuAreaCalculatorFinal/OsuAreaCalculatorFinalVerSetup.exe)
 
 ## Run From Code
 Since the provided .exe file has not been signed, Microsoft does not consider it trustworthy and marks it as a virus.
