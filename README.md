@@ -3,6 +3,11 @@
 ## PreBuild
 If you're unfamiliar with GitHub, here’s a direct download link:  [OsuAreaCalculator.exe](https://github.com/KaikeGold/OsuAreaCalculator/releases/download/OsuAreaCalculatorFinal/OsuAreaCalculatorFinalVerSetup.exe)
 
+## Dependencies 
+
+AutoHotkey v1.1.x is required to hide and show your cursor.
+[Download it here](https://www.autohotkey.com/download/ahk-install.exe)
+
 ## Run From Code
 Since the provided .exe file has not been signed, Microsoft does not consider it trustworthy and marks it as a virus.
 To prevent the Virus pop up from happening, you can run the program from source code.
@@ -32,11 +37,6 @@ Install [Python](https://www.python.org/downloads/) on your system. Latest teste
 2. Right-click the `run.bat` script > Create shortcut > add it to your desktop
 
    
-## Dependencies 
-
-AutoHotkey v1.1.x is required to hide and show your cursor.
-[Download it here](https://www.autohotkey.com/download/ahk-install.exe)
-
 ## How to use
 This tool calculates your Osu! area by converting your monitor's current resolution into your tablet's active field in millimeters. Tracking and visualizes cursor movements on a graphics tablet, measuring the area you aim at, providing dimensions and positions. This was inspired in the oldschool "draw in a paper while see a replay" method, but i modernized it(i dont know how no one did that before LOL)
 
