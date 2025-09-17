@@ -11,4 +11,4 @@ This version of the OsuAreaCalculator still retains its original features, but i
 3. run install-requirement.bat (DO THIS PLEASE)
 4. Run gui.py
 
-*this is temporary until i can figure out how to make it a compressed .exe file. Ain't no way i am gonna make ya'll download a 600MB exe file :skull:
+*this is temporary until i can figure out how to make it a compressed .exe file. Ain't no way i am gonna make ya'll download a 600MB exe file
