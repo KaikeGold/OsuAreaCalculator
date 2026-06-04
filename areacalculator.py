@@ -3,7 +3,6 @@ import subprocess  # Enables running external processes
 from screeninfo import get_monitors  # Fetches monitor information like resolution and dimensions
 import base64
 import ctypes  # Provides access to Windows API for screen dimensions
-from Xlib import X, display  # Provides access to X11 protocols for screen dimensions (and hiding the cursor)
 import keyboard  # Used for detecting key presses
 import matplotlib.pyplot as plt  # For plotting cursor movement
 from matplotlib.widgets import TextBox, Button
@@ -21,6 +20,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 if platform.system() == 'Linux':
+    from Xlib import X, display
     # Retrieve screen dimensions using X11
     screen = display.Display().screen()
     SCREEN_WIDTH = screen.width_in_pixels
@@ -34,6 +34,9 @@ if platform.system() == 'Windows':
     user32 = ctypes.windll.user32
     SCREEN_WIDTH = user32.GetSystemMetrics(0)  # Screen width in pixels
     SCREEN_HEIGHT = user32.GetSystemMetrics(1)  # Screen height in pixels
+
+# Calculate dynamic width multiplier based on aspect ratio
+WIDTH_MULTIPLIER = (15 / 16) * (SCREEN_WIDTH / SCREEN_HEIGHT)
 
 # Global variables for tablet dimensions in millimeters
 TABLET_WIDTH_MM = 0
@@ -264,7 +267,7 @@ def plot_cursor_positions(positions_x, positions_y, app):
         "OpenTabletDriver does not natively support non-rectangular tablet areas."
         "To get a parallelogram-shaped tablet area, you can use Adryzz' Custom Filter. "
         "This plugin works directly with tablet coordinates, so to calculate the correct "
-        "formula for your selection, we need to know the tablet cfrom matplotlib.patches import Rectangleoordinate resolution of "
+        "formula for your selection, we need to know the tablet coordinate resolution of "
         "your tablet. Most Wacom tablets have 100 coordinates per mm while the Gaomon S620 "
         "has 200. \n"
         "\n"
@@ -334,8 +337,8 @@ def plot_cursor_positions(positions_x, positions_y, app):
         if is_rectangle((xc, yc), 1e-12):
             playfield_width = np.linalg.norm(vec1)
             playfield_height = np.linalg.norm(vec2)
-            screen_width = playfield_width * 5/3
-            screen_height = playfield_height * 5/4
+            screen_width = playfield_width * WIDTH_MULTIPLIER
+            screen_height = playfield_height * 1.25
             center = corners[0] + 1/2 * vec1 + 25/48 * vec2
             angle = np.arctan2(yc[1] - yc[0], xc[1] - xc[0])
         
@@ -546,10 +549,10 @@ def track_cursor_movement(app):
                 tracking = False
                 width = (max_mm_x - min_mm_x)
                 height= (max_mm_y - min_mm_y)
-                widthad = (max_mm_x - min_mm_x) * 1.66666666667
+                widthad = (max_mm_x - min_mm_x) * WIDTH_MULTIPLIER
                 heightad = (max_mm_y - min_mm_y) * 1.25
                 center_x = min_mm_x + (max_mm_x - min_mm_x) / 2
-                center_y = min_mm_y + (max_mm_y - min_mm_y) / 23/48
+                center_y = min_mm_y + (max_mm_y - min_mm_y) * 23/48
 
                 # Restore the cursor visibility
                 show_cursor()
